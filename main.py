@@ -2,11 +2,39 @@ import streamlit as st
 import pandas as pd
 import numpy as np
 
+# --- Bắt đầu: Khối CSS tùy chỉnh cho 80% Width ---
+st.markdown(
+    """
+    <style>
+    /* 1. Thiết lập layout rộng (wide) */
+    .block-container {
+        padding-top: 1rem;
+        padding-bottom: 0rem;
+        padding-left: 10%;
+        padding-right: 10%;
+        max-width: 100% !important;
+    }
+    /* 2. Giới hạn chiều rộng thực tế của nội dung (chỉ áp dụng cho nội dung chính) */
+    .st-emotion-cache-18ni4n2, .st-emotion-cache-1jm69f1 {
+        max-width: 100%;
+    }
+    .main {
+        max-width: 80%; /* Giới hạn chiều rộng nội dung chính */
+        margin: auto; /* Căn giữa nội dung chính */
+    }
+    </style>
+    """,
+    unsafe_allow_html=True,
+)
+# --- Kết thúc: Khối CSS tùy chỉnh ---
+
+
 # Cấu hình trang
 st.set_page_config(
     page_title="Hướng dẫn Cài đặt Python 3.13 & UV (Chi tiết)",
     page_icon="🚀",
-    layout="centered"
+    layout="wide", # Phải là 'wide' để CSS tùy chỉnh hoạt động tốt nhất
+    initial_sidebar_state="collapsed"
 )
 
 # Tiêu đề
@@ -57,13 +85,14 @@ st.subheader("B. Thêm thư viện Streamlit")
 st.write("**Mục đích:** Lệnh `uv add streamlit` thêm gói Streamlit vào dự án. UV sẽ cài đặt Streamlit vào môi trường ảo vừa tạo (`.venv`) và tự động ghi tên gói vào file cấu hình dự án.")
 st.code("uv add streamlit", language='bash')
 
+st.divider()
 # ------------------------------------------------------------------
-# --- BƯỚC 4: KIỂM TRA CÀI ĐẶT (TEST) ---
+# --- BƯỚC 4: CODE MẪU BÊN TRÁI, REVIEW BÊN PHẢI ---
 # ------------------------------------------------------------------
 st.header("4️⃣ Bước 4: Kiểm tra Cài đặt (Test)")
 st.write("Đây là đoạn code **Streamlit** mẫu tạo ra một ứng dụng nhỏ để kiểm tra tính tương tác của cài đặt thành công:")
 
-# Định nghĩa đoạn code test mới
+# Định nghĩa đoạn code test
 test_code = """
 import streamlit as st
 import pandas as pd
@@ -88,30 +117,44 @@ if st.button('2. Nhấn vào tớ!'):
     st.balloons()
     st.write("Đã nhấn nút. Ứng dụng hoạt động tương tác!")
 """
-st.code(test_code, language='python')
 
-# Hiển thị kết quả của đoạn code đó (đã được tích hợp vào file main.py này)
-# Tái tạo output của code test
+# Sử dụng columns để chia bố cục: 1.5 phần cho Code, 1 phần cho Review
+col_code, col_review = st.columns([1.5, 1])
+
+# --- Cột Trái (Code Mẫu) ---
+with col_code:
+    st.markdown("#### Code: Chép và chạy file `main.py`")
+    st.code(test_code, language='python')
+
+# --- Cột Phải (Review/Kết quả) ---
+with col_review:
+    st.markdown("#### Kết quả (Review):")
+    st.subheader("✅ KIỂM TRA THÀNH CÔNG: Môi trường đã sẵn sàng!")
+    st.success("🎉 Chúc mừng bạn cài đặt thành công Streamlit, UV, Pandas và Numpy! 🎉")
+    
+    st.markdown("---") # Đường kẻ phân chia nội dung review
+
+    # 1. Thanh trượt
+    st.markdown("**1. Chọn một giá trị:**")
+    review_value = st.slider("", 0, 100, 50, key='review_slider', label_visibility='collapsed')
+    st.info(f"Giá trị bạn chọn là: {review_value}")
+
+    # 2. Bảng dữ liệu
+    st.markdown("**Bảng dữ liệu ngẫu nhiên:**")
+    review_df = pd.DataFrame({
+        'Cột A': [1, 2],
+        'Cột B': [10, 20]
+    })
+    st.dataframe(review_df, use_container_width=True)
+    
+    # 3. Nút bấm
+    st.markdown("**2. Nhấn vào tớ!**")
+    if st.button('Click Me!', key='review_button'):
+        st.write("Đã nhấn nút. Ứng dụng hoạt động tương tác!")
+
+st.markdown("Nếu cậu thấy **thanh trượt**, **bảng dữ liệu** và **nút bấm** này, nghĩa là các công cụ đã sẵn sàng.")
+
 st.divider()
-st.subheader("✅ KIỂM TRA THÀNH CÔNG: Môi trường đã sẵn sàng!")
-st.success("🎉 Chúc mừng bạn cài đặt thành công Streamlit, UV, Pandas và Numpy! 🎉")
-
-value = st.slider("1. Chọn một giá trị:", 0, 100, 50)
-st.info(f"Giá trị bạn chọn là: {value}")
-
-df = pd.DataFrame(
-    np.random.randn(5, 4),
-    columns=['Cột A', 'Cột B', 'Cột C', 'Cột D']
-)
-st.dataframe(df)
-
-if st.button('2. Nhấn vào tớ!'):
-    st.balloons()
-    st.write("Đã nhấn nút. Ứng dụng hoạt động tương tác!")
-
-st.markdown("Nếu cậu thấy **thanh trượt** và **bảng dữ liệu** này, nghĩa là các công cụ đã sẵn sàng.")
-st.divider()
-
 # ------------------------------------------------------------------
 # --- BƯỚC 5: CHẠY FILE (RUN FILE) ---
 # ------------------------------------------------------------------
@@ -123,4 +166,21 @@ st.code("uv run streamlit run main.py", language='bash')
 st.info("Ứng dụng sẽ tự động mở trên trình duyệt của cậu tại địa chỉ `http://localhost:8501`.")
 
 
-st.caption("Code by Gemini • Hỗ trợ học tập Python & Streamlit")
+st.divider()
+
+# ------------------------------------------------------------------
+# --- FOOTER CÓ THÔNG TIN NGƯỜI TẠO ---
+# ------------------------------------------------------------------
+
+with st.container():
+    st.markdown("---")
+    
+    col1_footer, col2_footer = st.columns([1, 1])
+    
+    with col1_footer:
+        st.markdown(f"**Sinh viên:** Đỗ Khắc Gia Khoa")
+        
+    with col2_footer:
+        st.markdown(f"**Giảng viên Hướng dẫn:** Thầy Nguyễn Xuân Cường")
+        
+    st.caption("Code hỗ trợ học tập và nghiên cứu.")
